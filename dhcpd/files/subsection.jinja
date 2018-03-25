@@ -1,0 +1,67 @@
+{%- if config.has_key('comment') %}
+  {%- for line in config['comment'].splitlines() %}
+{{ indentation }}# {{ line }}
+  {%- endfor %}
+{%- endif %}
+{%- if config.has_key('match') %}
+{{ indentation }}match {{ config['match'] }};
+{%- endif %}
+{%- if 'use_host_decl_names' in config %}
+{{ intendation }}  use-host-decl-names {{ config.use_host_decl_names }};
+{%- endif %}
+{%- if config.has_key('broadcast_address') %}
+{{ intendation }}  option broadcast-address {{ config['broadcast_address'] }};
+{%- endif %}
+{%- if config.has_key('domain_name_servers') %}
+{{ indentation }}option domain-name-servers {{ config['domain_name_servers']|join(',') }};
+{%- endif %}
+{%- if config.has_key('netbios_name_servers') %}
+{{ indentation }}option netbios-name-servers {{ config['netbios_name_servers']|join(',') }};
+{%- endif %}
+{%- if config.has_key('ntp_servers') %}
+{{ indentation }}option ntp-servers {{ config['ntp_servers']|join(',') }};
+{%- endif %}
+{%- if config.has_key('lpr_servers') %}
+{{ indentation }}option lpr-servers {{ config['lpr_servers']|join(',') }};
+{%- endif %}
+{%- if config.has_key('irc_server') %}
+{{ indentation }}option irc-server {{ config['irc_server']|join(',') }};
+{%- endif %}
+{%- if config.has_key('tftp_server_name') %}
+{{ indentation }}option tftp-server-name "{{ config['tftp_server_name'] }}";
+{%- endif %}
+{%- if config.has_key('smtp_server') %}
+{{ indentation }}option smtp-server {{ config['smtp_server'] }};
+{%- endif %}
+{%- if config.has_key('domain_name') %}
+{{ indentation }}option domain-name "{{ config['domain_name'] }}";
+{%- endif %}
+{%- if config.has_key('domain_search') %}
+{{ indentation }}option domain-search "{{ config['domain_search']|join('","') }}";
+{%- endif %}
+{%- if config.has_key('filename') %}
+{{ indentation }}filename "{{ config['filename'] }}";
+{%- endif %}
+{%- if config.has_key('next_server') %}
+{{ indentation }}next-server {{ config['next_server'] }};
+{%- endif %}
+{%- if config.has_key('default_lease_time') %}
+{{ indentation }}default-lease-time {{ config['default_lease_time'] }};
+{%- endif %}
+{%- if config.has_key('max_lease_time') %}
+{{ indentation }}max-lease-time {{ config['max_lease_time'] }};
+{%- endif %}
+{%- if config.has_key('routers') and config.routers is string %}
+{{ indentation }}option routers {{ config.routers }};
+{%- elif config.has_key('routers') and config.routers is sequence %}
+{{ indentation }}option routers
+  {%- for router in config.routers %} {{ router }}
+    {%- if not loop.last %},{% else %};{% endif %}
+  {%- endfor %}
+{%- endif %}
+{%- for option in customized.keys() %}
+  {%- if option in config %}
+    {%- if customized[option]['type'] in types_to_quote %} {% set quote = dquote %} {%- endif %}
+{{ indentation }}option {{ option|replace('_', '-') }} {{ quote }}{{ config.get(option) }}{{ quote }};
+  {%- endif %}
+{%- endfor %}
