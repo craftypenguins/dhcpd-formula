@@ -116,19 +116,30 @@ dhcpd:
                 based on that.   The example below shows filtering out the first value
                 listed in the user-class DHCP option 77. This is then used by a subclass
                 defined later to act on those values.
-            match: match pick-first-value (option user-class);
+            match: pick-first-value (option user-class);
+
+        iotthingsclass:
+            comment: |
+                A class without an IF clause can be used to push a matched field
+                to a subclass definition that can have scope itself, or be used
+                for an allow/deny control inside a subnet pool.
+            match: hardware
 
     subclass:
         firstuserclass:
             iPXE:
               comment: |
-                Related to the class filter, you can further define subclasses of DHCP config
-                statements to apply to the value matched in the class filter.
-                Think of it as a case statement to extend the class statement.
-                In this example, the matched value of 'iPXE' from the filtered
-                class 'firstuserclass' (defined in the above example), will cause
-                a different secondary boot filename to be specified.
+                This is an example of a using a subclass of a class filter
+                In this example, the matched user-class value of 'iPXE' from
+                the class named 'firstuserclass' (defined in the above example),
+                will cause a different secondary boot filename to be specified.
               filename: "http://192.168.0.1/boot/boot.ipxe"
+              auto-proxy-config: "example_data_for_customized_option_see_below"
+        iotthingsclass:
+            # These examples are subclasses without scope used for allow/deny
+            # inside of a subnet declaration
+            '00:21:29:a1:c3:a1': noscope
+            '00:21:29:a1:c3:a2': noscope
 
     shared_networks:
         224-29:
@@ -145,7 +156,7 @@ dhcpd:
                   range:
                     - 10.17.224.10
                     - 10.17.224.250
-                - deny: members of "foo"
+                - deny: members of "iotthingsclass"
                   range:
                     - 10.0.29.10
                     - 10.0.29.230
