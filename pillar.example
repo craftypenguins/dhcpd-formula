@@ -107,6 +107,28 @@ dhcpd:
                 other clients get addresses on the 10.0.29/24 subnet.
             # I'm suprised this works...
             match: if substring (option vendor-class-identifier, 0, 4) = "SUNW"
+            default_lease_time: 600
+
+        firstuserclass:
+            comment: |
+                You can also have a class assignment take no action, but simply
+                extract a dhcp option to be matched later in a subclass definition
+                based on that.   The example below shows filtering out the first value
+                listed in the user-class DHCP option 77. This is then used by a subclass
+                defined later to act on those values.
+            match: match pick-first-value (option user-class);
+
+    subclass:
+        firstuserclass:
+            iPXE:
+              comment: |
+                Related to the class filter, you can further define subclasses of DHCP config
+                statements to apply to the value matched in the class filter.
+                Think of it as a case statement to extend the class statement.
+                In this example, the matched value of 'iPXE' from the filtered
+                class 'firstuserclass' (defined in the above example), will cause
+                a different secondary boot filename to be specified.
+              filename: "http://192.168.0.1/boot/boot.ipxe"
 
     shared_networks:
         224-29:
